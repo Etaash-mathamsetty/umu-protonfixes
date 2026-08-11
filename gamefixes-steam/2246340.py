@@ -5,16 +5,21 @@ from protonfixes import util
 
 
 def main() -> None:
-    """Imports Monster Hunter: World save from remote steam cloud folder. We need to get steam cloud ID, not steamID, which is only reported as folder name in local"""
-    # get all remote IDs to anticipate for multi accounts
-    listRemoteID = [
-        name for name in os.listdir(f'{os.environ.get("STEAM_COMPAT_CLIENT_INSTALL_PATH", "")}/userdata')
-    ]
+    """Import Monster Hunter: World saves for every local Steam account."""
+    steam_install_path = os.environ.get('STEAM_COMPAT_CLIENT_INSTALL_PATH')
+    if not steam_install_path:
+        return
+
+    userdata_path = os.path.join(steam_install_path, 'userdata')
+    try:
+        remote_ids = os.listdir(userdata_path)
+    except OSError:
+        return
 
     # import save for all remote IDs because we don't know which one is the right ID. import function is robust enough to anticipate wrong ID.
-    for accoundID in listRemoteID:
+    for account_id in remote_ids:
         # skip 0
-        if accoundID != '0':
+        if account_id != '0':
             util.import_saves_folder(
-                582010, f'../../Program Files (x86)/Steam/userdata/{accoundID}/582010/'
+                582010, f'../../Program Files (x86)/Steam/userdata/{account_id}/582010/'
             )
